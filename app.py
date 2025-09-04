@@ -16,9 +16,9 @@ import time
 st.set_page_config(page_title='Impish Evening', page_icon='😈', initial_sidebar_state="collapsed", layout='wide')
 
 # Set title
-title_col, team_col = st.columns([3,1])
+title_col, logo_col, team_col = st.columns([4,4,1])
 title_col.markdown(f"<div style='height: 10px;'></div>", unsafe_allow_html=True)
-title_col.markdown("<h1 style='font-size:35px;'>📺 An Impish Evening </h1>",unsafe_allow_html=True)
+title_col.markdown("<h1 style='font-size:35px;'>😈 An Impish Evening </h1>",unsafe_allow_html=True)
 st.markdown("---")
 
 # Create containers
@@ -58,9 +58,10 @@ def center_text(text, font_size="1.2", spacing=30):
     st.markdown(f"<div style='height: {spacing}px;'></div>", unsafe_allow_html=True)
 
 # Centered image
-def center_image(image_url, width=100, spacing=30):
-    st.markdown(f"<div style='text-align: center;'><img src='{image_url}' style='max-width: {width}%; height: auto;'></div>",unsafe_allow_html=True)
-    st.markdown(f"<div style='height: {spacing}px;'></div>", unsafe_allow_html=True)
+def center_image(image_url, width=100, spacing=30, column=None):
+    markdown_fn = column.markdown if column else st.markdown
+    markdown_fn(f"<div style='text-align: center;'><img src='{image_url}' style='max-width: {width}%; height: auto;'></div>",unsafe_allow_html=True)
+    markdown_fn(f"<div style='height: {spacing}px;'></div>", unsafe_allow_html=True)
 
 # Centered local image
 def local_image(image_path, width=100, spacing=30):
@@ -181,8 +182,8 @@ emoji_options = [
 
 # Set delay times
 loading_delay = 0.5 # delay when loading questions #3
-pre_question_delay = 1 # delay before the question #1
-pre_answer_delay = 2 # delay before the first answer #2
+pre_question_delay = 0.5 # delay before the question #1
+pre_answer_delay = 1 # delay before the first answer #2
 answer_delay = 1 # delay for subsequent answer #1
 
 
@@ -230,13 +231,13 @@ num_questions = len(df)
 
 # 2. Specify local images
 category_image_mapping = {
-    "GBBO": "./images/GBBO.png",
-    "TOTP": "./images/TOTP.png",
+    "The Great British Bake Off": "./images/GBBO.png",
+    "Top of the Pops": "./images/TOTP.png",
     "Art Attack": "./images/art_attack.png",
     "A Question of Sport": "./images/question_of_sport.png",
     "Brainiac": "./images/brainiac.png",
     "Location Location Location": "./images/location.png",
-    "MAFS": "./images/MAFS.png",
+    "Married at First Sight": "./images/MAFS.png",
     "Our Planet": "./images/our_planet.png",
     "Richard Osman's House of Games": "./images/house_of_games.png",
     "QI": "./images/QI.png",
@@ -252,6 +253,25 @@ for category, path in category_image_mapping.items():
     with open(path, "rb") as image:
         encoded = base64.b64encode(image.read()).decode()
     category_image_mapping[category] = f"data:image/jpeg;base64,{encoded}"
+
+# Give each show an emoji
+category_emoji_mapping = {
+    "The Great British Bake Off": ["🧁", "🍰"],       # Cupcake + Slice of cake
+    "Top of the Pops": ["🎤", "🎶"],                  # Microphone + Music notes
+    "Art Attack": ["🎨", "🖌️"],                       # Palette + Paintbrush
+    "A Question of Sport": ["⚽", "🏅"],              # Football + Medal
+    "Brainiac": ["🧪", "💥"],                         # Testtube + Explosion
+    "Location Location Location": ["📍", "🏠"],       # Map pin + House
+    "Married at First Sight": ["💍", "💑"],           # Ring + Couple
+    "Our Planet": ["🌍", "🐘"],                       # Earth + Elephant
+    "Richard Osman's House of Games": ["🎲", "🎮"],   # Brain + Controller
+    "QI": ["🔍", "💡"],                               # Question mark + Idea
+    "Time Team": ["🏺", "⛏️"],                        # Ancient pot + Pickaxe (digging)
+    "Mastermind": ["🪑", "🧠"],                       # Chair + Brain
+    "Supernatural": ["👻", "🕯️"],                     # Ghost + Candle
+    "Watchdog": ["🐶", "🔍"],                         # Dog + Magnifying glass
+    "Grand Designs": ["🏡", "🪑"],                    # House + Chair
+}
 
 
 
@@ -652,7 +672,7 @@ with questions_section:
         if not st.session_state["category_locked"] and not unused_df.empty:
 
             # Prompt category selection (centered)
-            center_text(f"📱TV Guide:", font_size=1.5)
+            center_text(f"📱 TV Guide 📺", font_size=1.5)
 
             # Render clickable images to select the category
             # Github: https://github.com/vivien000/st-clickable-images
@@ -694,8 +714,9 @@ with questions_section:
                 selected_idx = st.session_state["selected_category_idx"]
                 selected_category = unused_categories[selected_idx]
                 selected_image = category_images[selected_category]
-                center_text(f"📺 You selected: {selected_category}!")
-                center_image(selected_image, width=50)
+                selected_emojis = category_emoji_mapping[selected_category]
+                center_text(f" {selected_emojis[0]} {selected_category}! {selected_emojis[1]}", spacing=0)
+                center_image(selected_image, width=40, column=logo_col)
 
         # Display a message if no category is selected (default state)
         if not selected_category:
@@ -785,7 +806,6 @@ with questions_section:
                 )
 
                 # Define the question container
-                st.markdown("---")
                 q_container = st.container()
 
                 with q_container:

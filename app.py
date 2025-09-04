@@ -58,20 +58,21 @@ def center_text(text, font_size="1.2", spacing=30):
     st.markdown(f"<div style='height: {spacing}px;'></div>", unsafe_allow_html=True)
 
 # Centered image
-def center_image(image_url, width=100, spacing=30, column=None):
+def center_image(image_url, width=100, top_spacing=0, spacing=30, column=None):
     markdown_fn = column.markdown if column else st.markdown
+    markdown_fn(f"<div style='height: {top_spacing}px;'></div>", unsafe_allow_html=True)
     markdown_fn(f"<div style='text-align: center;'><img src='{image_url}' style='max-width: {width}%; height: auto;'></div>",unsafe_allow_html=True)
     markdown_fn(f"<div style='height: {spacing}px;'></div>", unsafe_allow_html=True)
 
 # Centered local image
-def local_image(image_path, width=100, spacing=30):
+def local_image(image_path, width=100, top_spacing=0, spacing=30):
     
     # Encode image with base64
     with open(image_path, "rb") as image:
         encoded = base64.b64encode(image.read()).decode()
     encoded_image = f"data:image/jpeg;base64,{encoded}"
 
-    center_image(encoded_image, width=width, spacing=spacing)
+    center_image(encoded_image, width=width, top_spacing=top_spacing, spacing=spacing)
 
 
 # Custom-sized info/error/success boxes
@@ -763,6 +764,8 @@ with questions_section:
                 q_prompt = selected_row["Question"]
                 category = selected_row["Category"]
                 image = selected_row["Image"]
+                notes = selected_row["Notes"]
+                post_image = selected_row["Post Image"]
 
                 # Collect the answers from the 4 option columns
                 answers = [
@@ -836,6 +839,10 @@ with questions_section:
                     if "reveal_answer" not in st.session_state:
                         st.session_state["reveal_answer"] = False
 
+                    # Initialize session state for showing notes
+                    if "show_notes" not in st.session_state:
+                        st.session_state["show_notes"] = False
+
                     # If answers are defined
                     if all(answers):
 
@@ -881,6 +888,9 @@ with questions_section:
                                     # Show all other answers
                                     else:
                                         st.button(str(ans), disabled=True, use_container_width=True, key=f"{q_prompt}_{i}_post_answer")
+                                    
+                                    # Show notes
+                                    st.session_state["show_notes"] = True
 
                         # If an answer is selected, show the selected answer
                         else:
@@ -891,6 +901,7 @@ with questions_section:
                                     if ans == st.session_state[selected_key]:
                                         if ans == true_answer:
                                             centered_box(f"✅ {ans}", "success", box_height)
+                                            st.session_state["show_notes"] = True # show notes
                                         else:
                                             centered_box(f"❌ {ans}", "error", box_height)
 
@@ -919,12 +930,18 @@ with questions_section:
                             # Mark question as answered
                             st.session_state["answered_this_question"] = True
 
-
                     # If no answers are defined, we have a manual question.
                     else:
                         # Mark question as answered automatically to prompt next question button
                         st.session_state["answered_this_question"] = True
 
+                    # Show notes if they exist
+                    if st.session_state['show_notes']:
+                        with st.container():
+                            if notes:
+                                center_text(notes, font_size=1.0, spacing=0)
+                            if post_image:
+                                local_image(f"./images/{post_image}", width=80, top_spacing=10, spacing=0)
 
                     # Cleanup section for after all questions
                     st.markdown("---")
@@ -974,6 +991,7 @@ with questions_section:
                             st.session_state["category_locked"] = False
                             st.session_state["selected_category_idx"] = None
                             st.session_state['questions_delayed'] = False
+                            st.session_state["show_notes"] = False
                             st.rerun()
 
             # Warn if no questions are left in the selected category

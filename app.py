@@ -32,7 +32,7 @@ questions_section = st.container()
 
 # Set a default sidebar width if not already set
 if "sidebar_width" not in st.session_state:
-    st.session_state["sidebar_width"] = 350
+    st.session_state["sidebar_width"] = 330
 
 # Set custom sidebar width
 st.markdown(
@@ -182,10 +182,10 @@ emoji_options = [
 #random.seed(10)
 
 # Set delay times
-loading_delay = 0.5 # delay when loading questions #3
-pre_question_delay = 0.5 # delay before the question #1
-pre_answer_delay = 1 # delay before the first answer #2
-answer_delay = 1 # delay for subsequent answer #1
+#loading_delay = 0.5 # delay when loading questions
+pre_question_delay = 0.5 # delay before the question
+pre_answer_delay = 0.75 # delay before the first answer
+answer_delay = 0.75 # delay for subsequent answer
 
 
 
@@ -196,14 +196,12 @@ answer_delay = 1 # delay for subsequent answer #1
 
 # 1. Manually enter questions
 q_array = [
-    ["What is 2+2?", "GBBO", "4", "5", "6", "7"],
-    ["Pick a very long answer!", "Long", "Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello", "5", "6", "7"],
+    ["What is 2+2?", "Maths", "4", "5", "6", "7"],
     ["What is the capital of France?", "Geography", "Paris", "London", "Berlin", "Rome"],
     ["What color do you get by mixing red and blue?", "Art", "Purple", "Green", "Orange", "Yellow"],
     ["How many continents are there?", "Geography", "7", "6", "5", "8"],
     ["Which planet is closest to the sun?", "Science", "Mercury", "Venus", "Earth", "Mars"],
     ["Select a Mastermind scroll!", "Mastermind", "", "", "", ""],
-    ["Significant of 22nd September?", "Mastermind", "", "", "", ""],
 ]
 df = pd.DataFrame(q_array, columns=["Question", "Category", "A1", "A2", "A3", "A4"])
 
@@ -428,8 +426,6 @@ with team_order:
                 st.session_state["team_order"] = new_order
                 st.session_state["team_order_confirmed"] = True
                 st.rerun()
-        elif st.session_state["team_order_confirmed"]:
-            st.success("Team order confirmed! You can select a question.")
         else:
             st.warning("Fill all team slots with unique teams, then confirm to proceed.")
 
@@ -482,12 +478,9 @@ else:
 # Create a sidebar
 with st.sidebar:
 
-    if not st.session_state["teams_locked"]:
-        st.markdown("## 🏆 Scoreboard   🔓")
+    if st.session_state["teams_locked"]:
 
-    else:
-        st.markdown("## 🏆 Scoreboard   🔐")
-
+        st.markdown("## 🏆 Scoreboard ")
 
         # Define the container for the cards
         cards = st.container()
@@ -500,7 +493,7 @@ with st.sidebar:
             with col1:
                 score = st.number_input(
                     f"{team['name']} score",
-                    min_value=0, max_value=999,
+                    min_value=0, max_value=90,
                     value=team["score"],
                     key=f"set_team_score_{i}",
                     label_visibility="collapsed",
@@ -512,6 +505,7 @@ with st.sidebar:
                     value=team["lifelines"],
                     key=f"set_team_lifelines_{i}",
                     label_visibility="collapsed",
+                    format="%d",
                 )
 
             # Update the dictionary
@@ -576,13 +570,13 @@ with st.sidebar:
                     ">
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span style="font-size: 24px;">{medal}</span>
-                            <strong style="flex: 1; text-align: left; font-size: 18px; margin: 0 10px;">
+                            <strong style="flex: 1; text-align: left; font-size: 17px; margin: 0 10px;">
                                 {team['name']} {to_play}
                             </strong>
                             <span style="font-size: 24px;">{team['emoji']}</span>
-                            <span style="font-size:22px; color:#444; margin-left:10px;">{dots}</span>
                         </div>
-                        <span style="font-size:25px;color:#2a5">{team['score']}</span>
+                        <span style="font-size:25px;color:#2a5;margin-left:10px;">{team['score']}</span>
+                        <span style="font-size:22px;color:#444;margin-left:17px;">{dots}</span>
                     </div>
                     """,
                     unsafe_allow_html=True,
@@ -691,15 +685,15 @@ with questions_section:
                 st.session_state["category_locked"] = True
 
                 # Spinner loading animation
-                _, central_col, _ = st.columns([3,1,3])
-                with central_col:
-                    st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
-                    st.image("https://upload.wikimedia.org/wikipedia/commons/3/3a/Gray_circles_rotate.gif", width=90)
-                    st.markdown("<div style='font-size:1.5em;font-weight:bold;'>Tuning in...</div>", unsafe_allow_html=True)
-                    st.markdown("</div>", unsafe_allow_html=True)
-                    time.sleep(loading_delay)
+                # _, central_col, _ = st.columns([3,1,3])
+                # with central_col:
+                #     st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+                #     st.image("https://upload.wikimedia.org/wikipedia/commons/3/3a/Gray_circles_rotate.gif", width=90)
+                #     st.markdown("<div style='font-size:1.5em;font-weight:bold;'>Tuning in...</div>", unsafe_allow_html=True)
+                #     st.markdown("</div>", unsafe_allow_html=True)
+                #     time.sleep(loading_delay)
             
-                # Progress bar
+                # Progress bar loading animation
                 # st.markdown("<div style='font-size:1.5em;font-weight:bold;'>Tuning in...</div>", unsafe_allow_html=True)
                 # progress_bar = st.progress(0)
                 # for i in range(100):
@@ -716,7 +710,7 @@ with questions_section:
                 selected_category = unused_categories[selected_idx]
                 selected_image = category_images[selected_category]
                 selected_emojis = category_emoji_mapping[selected_category]
-                center_text(f" {selected_emojis[0]} {selected_category}! {selected_emojis[1]}", spacing=0)
+                center_text(f" {selected_emojis[0]} {selected_category} {selected_emojis[1]}", spacing=0)
                 center_image(selected_image, width=40, column=logo_col)
 
         # Display a message if no category is selected (default state)
@@ -816,7 +810,7 @@ with questions_section:
                     # Write the question (centered)
                     if not st.session_state['questions_delayed']:
                         time.sleep(pre_question_delay)
-                    center_text(q_prompt, font_size=1.8)
+                    center_text(q_prompt, font_size=1.6)
                     if not st.session_state['questions_delayed']:
                         time.sleep(pre_answer_delay)
 
@@ -939,9 +933,10 @@ with questions_section:
                     if st.session_state['show_notes']:
                         with st.container():
                             if notes:
+                                st.markdown(f"<div style='height: 10px;'></div>", unsafe_allow_html=True)
                                 center_text(notes, font_size=1.0, spacing=0)
                             if post_image:
-                                local_image(f"./images/{post_image}", width=80, top_spacing=10, spacing=0)
+                                local_image(f"./images/{post_image}", width=60, top_spacing=10, spacing=0)
 
                     # Cleanup section for after all questions
                     st.markdown("---")

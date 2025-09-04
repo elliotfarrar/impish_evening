@@ -1,4 +1,4 @@
-Category,Question,A1,A2,A3,A4,
+Category,Question,A1,A2,A3,A4,Image
 TOTP,Which of these is the original version of "All along the watchtower"?,B,A,C,D,
 TOTP,Which of these spent longer at UK number 1?,C,A,B,D,
 TOTP,Which of these is the odd one out?,B,A,C,D,
@@ -42,7 +42,7 @@ Our Planet,"What is unique about Pheasant Island, located in the Bidasoa river i
 Richard Osman's House of Games,"Which classic arcade game was originally designed to prevent players from ""winning"" by getting faster and harder forever, but ended up crashing at level 256 due to a software bug?",Pac-Man,Pong,Donkey Kong,Space Invaders,
 Richard Osman's House of Games,"Before Mario was called Mario, what was his original name in Donkey Kong?",Jumpman,Man Kong,Mr Plumber,Guisseppe,
 Richard Osman's House of Games,"What was the ""Leeroy Jenkins"" incident in the MMORPG World of Warcraft?",A player recklessly charged into battle and killed his whole guild,A player killed a raidboss using a glitch and crashed the game servers,A reporter went undercover in-game to expose an organized real-world trading crime ring?,"A Blizzard developer accidently announced the release of their WoW-themed digital TCG ""Hearthstone"" six months early",
-Richard Osman's House of Games,Which of these is NOT a way to die in the Sims 4?,Death by gnomes,Death by crows,Death by embarrasment,Death by mold,
+Richard Osman's House of Games,Which of these is NOT a way to die in the Sims 4?,Death by gnomes,Death by crows,Death by embarrasment,Death by mould,
 Richard Osman's House of Games,Which of these statements about the original Oregon Trail game (1971) is NOT true?,"The game was initially banned in parts of Minnesota after parents complained about its graphic dysentery deaths, prompting the state governor to declare “No child should learn history through intestinal failure.”","The original creators were not credited until 1995, when they recieved matching jean jackets and a free copy of the game at a celebration at the Mall of America","Widespread distribution of a pirated version of the game resulted in players frequently encountered a gravestone that read ""Here lies andy: peperony and chease""",The game existed only as a single copy of a paper printout for for several years in the 1970's,
 GBBO,Which of these foods is so notoriously smelly that it's often opened underwater to avoid clearing the room?,Surströmming,Nattō,Durian,Limburger cheese,
 GBBO,Which of these is a real serviette folding technique?,The Bishop's Hat,The Royal Peacock,The Silent Swan,The Velvet Baton,
@@ -82,13 +82,13 @@ Mastermind,Pick a scroll!,,,,,
 Mastermind,Pick a scroll!,,,,,
 Supernatural,"Some of Laura's favourite folklore creatures come from Lumberjack tales. Which of these isn't a ""real"" fearsome critter?",The Griddle Cat,The Squonk,The Hidebehind,The Hoopsnake,
 Supernatural,When she was little Laura was taken to a witch on several occasions. How did the witch cure Laura's eczema?,She spat on her,She made a salve from snails,She transferred the eczema to a mouse,She washed Laura's clothes in a cauldron ,
-Supernatural,"Bigfoot has been captured on film several times, but what is so interesting about the iconic Patterson-Gimlin footage?",Bigfoot is visibly female,Bigfoot waves at the camera,Bigfoot has relatively small feet for their height. ,Bigfoot is captured vocalising for the first time.,
+Supernatural,"Bigfoot has been captured on film several times, but what is so interesting about the iconic Patterson-Gimlin footage?",Bigfoot is visibly female,Bigfoot waves at the camera,Bigfoot has relatively small feet for their height ,Bigfoot is captured vocalising for the first time,
 Supernatural,Which of these mythological creatures are not shapeshifters?,Grindylow,Rougarou,Selkie,Púca,
 Watchdog,See Watchdog envelope #1,,,,,
 Watchdog,See Watchdog envelope #2,,,,,
 Watchdog,See Watchdog envelope #3,,,,,
 Watchdog,See Watchdog envelope #4,,,,,
-Grand Designs,Where is this?,,,,,
-Grand Designs,Where is this?,,,,,
-Grand Designs,Where is this?,,,,,
-Grand Designs,Where is this?,,,,,
+Grand Designs,Where is this?,,,,,grand_designs_1.png
+Grand Designs,Where is this?,,,,,grand_designs_2.png
+Grand Designs,Where is this?,,,,,grand_designs_3.png
+Grand Designs,Where is this?,,,,,grand_designs_4.png

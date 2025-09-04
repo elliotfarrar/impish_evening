@@ -67,6 +67,17 @@ def center_image(image_url, width=100, spacing=30):
     st.markdown(f"<div style='text-align: center;'><img src='{image_url}' style='max-width: {width}%; height: auto;'></div>",unsafe_allow_html=True)
     st.markdown(f"<div style='height: {spacing}px;'></div>", unsafe_allow_html=True)
 
+# Centered local image
+def local_image(image_path, width=100, spacing=30):
+    
+    # Encode image with base64
+    with open(image_path, "rb") as image:
+        encoded = base64.b64encode(image.read()).decode()
+    encoded_image = f"data:image/jpeg;base64,{encoded}"
+
+    center_image(encoded_image, width=width, spacing=spacing)
+
+
 # Custom-sized info/error/success boxes
 def centered_box(msg, box_type="success", height=55):
     """
@@ -129,17 +140,7 @@ def hex_to_rgba(hex_color, alpha=0.7):
     rgb = tuple(int(hex_color[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
     return f'rgba({rgb[0]},{rgb[1]},{rgb[2]},{alpha})'
 
-def show_local_image(image_path, caption=None, use_container_width=True):
-    """
-    Display a local image in a Streamlit app.
 
-    Args:
-        image_path (str): Path to the local image file.
-        caption (str, optional): Caption for the image.
-        use_column_width (bool, optional): Whether to use the column width.
-    """
-    image = Image.open(image_path)
-    st.image(image, use_container_width=use_container_width)
 
 # Emoji options
 emoji_options = [
@@ -216,6 +217,9 @@ df = pd.read_csv('questions.csv')
 # These will be used to track question usage.
 df.reset_index(inplace=True)  
 
+# Ensure all nan are none
+df.replace({np.nan: None},inplace=True)
+
 # Get the total number of questions
 num_questions = len(df)
 
@@ -237,7 +241,7 @@ category_image_mapping = {
     "A Question of Sport": "./images/question_of_sport.png",
     "Brainiac": "./images/brainiac.png",
     "Location Location Location": "./images/location.png",
-    "MAFS": "./images/static_screen.png",
+    "MAFS": "./images/MAFS.png",
     "Our Planet": "./images/our_planet.png",
     "Richard Osman's House of Games": "./images/house_of_games.png",
     "QI": "./images/QI.png",
@@ -248,7 +252,7 @@ category_image_mapping = {
     "Grand Designs": "./images/grand_designs.png",
 }
 
-# Encode them with base64
+# Encode images with base64
 for category, path in category_image_mapping.items():
     with open(path, "rb") as image:
         encoded = base64.b64encode(image.read()).decode()
@@ -427,9 +431,9 @@ if st.session_state["team_order_confirmed"]:
     team_to_play = st.session_state["team_order"][st.session_state["click_counter"] % st.session_state["num_teams"]]
     team_emoji = next((team["emoji"] for team in team_data if team["name"] == team_to_play), "")
     team_colour = next((team["colour"] for team in team_data if team["name"] == team_to_play), "#000000")
-    trans_colour = hex_to_rgba(team_colour, 0.5)
+    trans_colour = hex_to_rgba(team_colour, 0) # completely transparent
 
-    # Render a card showing the current user
+    # Show current question
     with team_col:
         if num_questions != st.session_state["click_counter"]:
             st.markdown(
@@ -437,13 +441,13 @@ if st.session_state["team_order_confirmed"]:
                     <div style='text-align: right;'>
                         <div style="
                             display: inline-block;
-                            font-size: 18px;
+                            font-size: 20px;
                             font-weight: bold;
                             background-color: {trans_colour};
                             border-radius: 8px;
                             padding: 10px 18px;
                             margin-top: 32px;">
-                            {team_to_play} to play! {team_emoji}
+                            Q{st.session_state["click_counter"]+1}/{num_questions}
                         </div>
                     </div>
                     """,
@@ -623,7 +627,7 @@ with questions_section:
     # Mark if all questions have been answered
     if num_questions == st.session_state["click_counter"]:
         center_text(f"⛔ TV Licence Expired!", font_size=1.5)
-        show_local_image("images/static_screen.png")
+        local_image("images/static_screen.png", width=80, spacing=0)
 
     if st.session_state["teams_locked"] and st.session_state["team_order_confirmed"] and num_questions != st.session_state["click_counter"]:
 
@@ -636,7 +640,7 @@ with questions_section:
         # Warn if dataframe is empty (should not trigger)
         if unused_df.empty:
             center_text(f"⛔ TV Licence Expired!", font_size=1.5)
-            show_local_image("images/static_screen.png")
+            local_image("images/static_screen.png", width=80, spacing=0)
 
         # Get the unused categories
         unused_categories = list(unused_df["Category"].unique())
@@ -665,44 +669,26 @@ with questions_section:
                 key=f"clickable_images_{st.session_state['click_counter']}",
             )
 
-            # # https://github.com/vivien000/st-clickable-images
-            # images = []
-            # for file in ["ether.png"]:
-            #     with open(file, "rb") as image:
-            #         encoded = base64.b64encode(image.read()).decode()
-            #         images.append(f"data:image/jpeg;base64,{encoded}")
-            # clicked = clickable_images(
-            #     images,
-            #     titles=[f"Image #{str(i)}" for i in range(len(images))],
-            #     div_style={"display": "flex", "justify-content": "center", "flex-wrap": "wrap"},
-            #     img_style={"margin": "5px", "height": "200px"},
-            # )
-
             # Prompt a rerun if an image is clicked
             if clicked > -1:
                 st.session_state["selected_category_idx"] = clicked
                 st.session_state["category_locked"] = True
 
-                # Randonly chose a fun loading animation
-                result = random.choice(["Spinner", "Progress"])
-
-                # Spinner
-                if result == "Spinner":
-                    _, central_col, _ = st.columns([3,1,3])
-                    with central_col:
-                        st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
-                        st.image("https://upload.wikimedia.org/wikipedia/commons/3/3a/Gray_circles_rotate.gif", width=90)
-                        st.markdown("<div style='font-size:1.5em;font-weight:bold;'>Tuning in...</div>", unsafe_allow_html=True)
-                        st.markdown("</div>", unsafe_allow_html=True)
-                        time.sleep(loading_delay)
+                # Spinner loading animation
+                _, central_col, _ = st.columns([3,1,3])
+                with central_col:
+                    st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+                    st.image("https://upload.wikimedia.org/wikipedia/commons/3/3a/Gray_circles_rotate.gif", width=90)
+                    st.markdown("<div style='font-size:1.5em;font-weight:bold;'>Tuning in...</div>", unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
+                    time.sleep(loading_delay)
             
                 # Progress bar
-                if result == "Progress":
-                    st.markdown("<div style='font-size:1.5em;font-weight:bold;'>Tuning in...</div>", unsafe_allow_html=True)
-                    progress_bar = st.progress(0)
-                    for i in range(100):
-                        progress_bar.progress(i+1)
-                        time.sleep(loading_delay/100)
+                # st.markdown("<div style='font-size:1.5em;font-weight:bold;'>Tuning in...</div>", unsafe_allow_html=True)
+                # progress_bar = st.progress(0)
+                # for i in range(100):
+                #     progress_bar.progress(i+1)
+                #     time.sleep(loading_delay/100)
 
                 st.rerun()
 
@@ -714,7 +700,7 @@ with questions_section:
                 selected_category = unused_categories[selected_idx]
                 selected_image = category_images[selected_category]
                 center_text(f"📺 You selected: {selected_category}!")
-                center_image(selected_image, width=40)
+                center_image(selected_image, width=50)
 
         # Display a message if no category is selected (default state)
         if not selected_category:
@@ -757,9 +743,10 @@ with questions_section:
                 # Select the question row corresponding to that index
                 selected_row = available_df[available_df["index"] == st.session_state["current_q_idx"]].iloc[0]
 
-                # Collect the prompt and category
+                # Collect the prompt, category, and image
                 q_prompt = selected_row["Question"]
                 category = selected_row["Category"]
+                image = selected_row["Image"]
 
                 # Collect the answers from the 4 option columns
                 answers = [
@@ -814,6 +801,10 @@ with questions_section:
                     center_text(q_prompt, font_size=1.8)
                     if not st.session_state['questions_delayed']:
                         time.sleep(pre_answer_delay)
+
+                    # Display the associated image if it exists
+                    if image:
+                        local_image(f"./images/{image}", width=40, spacing=0)
 
                     # Mark the delays as used in session state
                     st.session_state['questions_delayed'] = True
@@ -974,11 +965,3 @@ with questions_section:
             else:
                 st.warning("No questions left in this category!")
 
-
-## TODO:
-# FULL TEST OF ALL QUESTIONS
-# PUSH TO GIT AND DEPLOY: https://blog.streamlit.io/host-your-streamlit-app-for-free/
-
-## Extra TODO:
-# Decoration, streamlit style, colours, art, icons, theme (DO YOU HAVE A TV LICENCE?)
-# Watch dog tag. Can we add images for certain questions?

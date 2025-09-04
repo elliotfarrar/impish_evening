@@ -13,12 +13,12 @@ import time
 ########## STREAMLIT ##########
 
 # Set streamlit display settings
-st.set_page_config(page_title='II', layout='wide')
+st.set_page_config(page_title='Impish Evening', page_icon='😈', initial_sidebar_state="collapsed", layout='wide')
 
 # Set title
 title_col, team_col = st.columns([3,1])
 title_col.markdown(f"<div style='height: 10px;'></div>", unsafe_allow_html=True)
-title_col.markdown("<h1 style='font-size:35px;'>📺 An Impish Evening 😈</h1>",unsafe_allow_html=True)
+title_col.markdown("<h1 style='font-size:35px;'>📺 An Impish Evening </h1>",unsafe_allow_html=True)
 st.markdown("---")
 
 # Create containers

@@ -12,11 +12,6 @@ import time
 
 ########## STREAMLIT ##########
 
-# Installation
-# conda create --name ii python==3.11.3
-# pip install streamlit==1.47.0
-# pip install st-clickable-images==0.0.3
-
 # Set streamlit display settings
 st.set_page_config(page_title='II', layout='wide')
 

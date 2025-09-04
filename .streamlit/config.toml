@@ -1,5 +1,3 @@
 [theme]
 base="light"
-runOnSave = true
-headless = true
 

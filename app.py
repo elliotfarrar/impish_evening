@@ -570,7 +570,7 @@ with st.sidebar:
                     ">
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span style="font-size: 24px;">{medal}</span>
-                            <strong style="flex: 1; text-align: left; font-size: 17px; margin: 0 10px;">
+                            <strong style="flex: 1; text-align: left; font-size: 1px; margin: 0 10px;">
                                 {team['name']} {to_play}
                             </strong>
                             <span style="font-size: 24px;">{team['emoji']}</span>

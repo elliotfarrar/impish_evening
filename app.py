@@ -7,6 +7,8 @@ import numpy as np
 import random
 import base64
 import time
+import pickle
+import os
 
 
 
@@ -25,6 +27,57 @@ st.markdown("---")
 team_setup = st.container()
 team_order = st.container()
 questions_section = st.container()
+
+
+
+
+
+
+########## RELOAD PROGRESS ##########
+# This allows us to load the entire session state history with a load
+# button so we can return to a previous quiz run at the same point that
+# we left it (session state is saved) at the bottom of the page.
+
+# def save_session_state(file_path):
+#     with open(file_path, 'wb') as f:
+#             pickle.dump(st.session_state.to_dict(), f)
+
+# def load_session_state(file_path):
+#     if os.path.exists(file_path):
+#         with open(file_path, 'rb') as f:
+#                 loaded_state = pickle.load(f)
+#                 for k, v in loaded_state.items():
+#                     st.session_state[k] = v
+#     else:
+#         print("File not found.")
+
+# # Initialize session state for if progress was loaded from a previous session
+# if "session_loaded" not in st.session_state:
+#     st.session_state.session_loaded = False
+
+# if not st.session_state.session_loaded:
+
+#     # Section for reloading session state
+#     st.markdown('---')
+#     loader = st.container()
+
+#     # Button to reload session state
+#     if loader.button(
+#         "Load previous session?",
+#         use_container_width=True
+#         ):
+#         loaded_state = load_session_state('session_state.pkl')
+#         if loaded_state is not None:
+#             st.session_state.update(loaded_state)
+
+#         # Mark state loaded to disable the button
+#         st.session_state.session_loaded = False
+
+#         # Rerun the page with new session state
+#         st.rerun()
+
+
+
 
 
 
@@ -178,6 +231,15 @@ emoji_options = [
     "🚧", "🛑", "🔰", "🏁", "🚩", "🎌", "🏴‍☠️", "🏳️", "🏳️‍🌈", "🏳️‍⚧️",
 ]
 
+# Default colours
+color_palette = [
+    "#e6194b", "#3cb44b", "#ffe119", "#4363d8",
+    "#f58231", "#911eb4", "#46f0f0", "#f032e6",
+    "#bcf60c", "#fabebe", "#008080", "#e6beff",
+    "#9a6324", "#fffac8", "#800000", "#aaffc3",
+    "#808000", "#ffd8b1", "#000075", "#808080"
+]
+
 # Set RNG seed
 #random.seed(10)
 
@@ -318,33 +380,40 @@ with team_setup:
             # If teams are not locked, allow setting team names and colors
             if not st.session_state["teams_locked"]:
 
+                # Initialize session states for default team info
+                if f"select_team_name_{i}" not in st.session_state:
+                    st.session_state[f"select_team_name_{i}"] = f"Team {chr(65+i)}"
+                if f"select_team_colour_{i}" not in st.session_state:
+                    st.session_state[f"select_team_colour_{i}"] = color_palette[i % len(color_palette)]
+                if f"select_team_emoji_{i}" not in st.session_state:
+                    st.session_state[f"select_team_emoji_{i}"] = emoji_options[i % len(emoji_options)]
+
                 # Set the team name
                 name = st.text_input(
-                    f"Team {i+1} Name:",
-                    value=f"Team {chr(65+i)}",
+                    label=f"Team {i+1} Name:",
                     key=f"select_team_name_{i}",
                     disabled=st.session_state["teams_locked"],
                     placeholder="Pick a team name!",
                     max_chars=20,
                 )
                 if not name:
-                    name = "Placeholder"
+                    name = f"Team {chr(65+i)}"
                 st.session_state[f"team_name_{i}"] = name
 
                 tcol1, tcol2 = st.columns(2)
 
                 # Set the team color
                 st.session_state[f"team_colour_{i}"] = tcol1.color_picker(
-                    f"Team {i+1} Colour:", "#6fa3ef",
+                    label=f"Team {i+1} Colour:", 
                     key=f"select_team_colour_{i}",
                     disabled=st.session_state["teams_locked"],
                 )
 
                 # Set the team emoji
                 st.session_state[f"team_emoji_{i}"] = tcol2.selectbox(
-                    f"Team {i+1} Emoji:",
-                    emoji_options,
-                    index=i % len(emoji_options), # Give each team a different default
+                    label=f"Team {i+1} Emoji:",
+                    options=emoji_options,
+                    #index=i % len(emoji_options), # Give each team a different default
                     key=f"select_team_emoji_{i}",
                     disabled=st.session_state["teams_locked"],
                     )
@@ -490,11 +559,17 @@ with st.sidebar:
         for i, team in enumerate(team_data):
             st.markdown(f"<small style='color: #888;'>{team['emoji']} <b>{team['name']}</b></small>", unsafe_allow_html=True)
             col1, col2 = st.columns([2, 2])
+
+            # Initialize session states for scores/lifelines
+            if f"set_team_score_{i}" not in st.session_state:
+                st.session_state[f"set_team_score_{i}"] = team["score"]
+            if f"set_team_lifelines_{i}" not in st.session_state:
+                st.session_state[f"set_team_lifelines_{i}"] = team["lifelines"]
+
             with col1:
                 score = st.number_input(
                     f"{team['name']} score",
                     min_value=0, max_value=90,
-                    value=team["score"],
                     key=f"set_team_score_{i}",
                     label_visibility="collapsed",
                 )
@@ -502,7 +577,6 @@ with st.sidebar:
                 lifelines = st.number_input(
                     f"{team['name']} lifelines",
                     min_value=0, max_value=3,
-                    value=team["lifelines"],
                     key=f"set_team_lifelines_{i}",
                     label_visibility="collapsed",
                     format="%d",
@@ -591,9 +665,9 @@ with st.sidebar:
         # Allow new width to be selected
         new_width = st.slider(
             "Sidebar Width (px)",
+            value=st.session_state["sidebar_width"],
             min_value=200,
             max_value=500,
-            value=st.session_state["sidebar_width"],
             step=10,
         )
 
@@ -602,6 +676,11 @@ with st.sidebar:
             st.session_state["sidebar_width"] = new_width
             st.session_state["sidebar_width_prev"] = new_width
             st.rerun()
+
+    # Section to save current session state
+    saver = st.container()
+
+    
 
    
 
@@ -718,7 +797,6 @@ with questions_section:
             pass
 
         else:
-
 
             # Get all questions in the selected category that haven't been used before
             available_df = df[(df["Category"] == selected_category) & (~df["index"].isin(st.session_state["used_indices"]))]
@@ -992,4 +1070,17 @@ with questions_section:
             # Warn if no questions are left in the selected category
             else:
                 st.warning("No questions left in this category!")
+
+
+
+
+# # Save session state history
+# if st.session_state["teams_locked"]:
+#     saver.markdown('---')
+#     if saver.button(
+#         "Save current session?",
+#         use_container_width=True,
+#         disabled=True if selected_category else False, # only allow saving between questions
+#         ):
+#         save_session_state("session_state.pkl")
 

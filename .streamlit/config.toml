@@ -7,4 +7,9 @@ showSidebarBorder = false
 baseRadius = "none"
 
 [server]
-runOnSave = false
+runOnSave = true
+
+[runner]
+enforceSerializableSessionState = true
+
+
